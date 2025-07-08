@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard การเก็บเงินห้องเรียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;500;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-light: #ecf3f9;
+            --card-bg-light: #f7fbff;
+            --card-border-light: #dfeeff;
+            --primary-light: #3c8dbc;
+            --secondary-light: #a2c3f5;
+            --highlight-light: #4facfe;
+            --accent-light: #2b5876;
+            --text-light: #333;
+
+            --bg-dark: #121b2b;
+            --card-bg-dark: #1e2a47;
+            --card-border-dark: #284069;
+            --primary-dark: #4facfe;
+            --secondary-dark: #71a9f7;
+            --highlight-dark: #71a9f7;
+            --accent-dark: #b0d4ff;
+            --text-dark: #e1e6f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--highlight-light), var(--accent-light));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            font-size: 2.2rem;
+            font-weight: 700;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            user-select: none;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 3rem;
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 250px;
+            background: var(--card-bg-light);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 120, 220, 0.08);
+            border-top: 4px solid var(--highlight-light);
+            transition: transform 0.2s, background-color 0.3s ease, box-shadow 0.3s ease,
+                border-color 0.3s ease;
+            text-align: center;
+            cursor: default;
+            user-select: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 120, 220, 0.15);
+        }
+
+        .card-icon {
+            font-size: 2.4rem;
+            margin-bottom: 0.7rem;
+            color: var(--highlight-light);
+            user-select: none;
+        }
+
+        .card-title {
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-bottom: 0.4rem;
+            color: #555;
+            user-select: none;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1e272e;
+            user-select: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #e0ecf5;
+            border-radius: 30px;
+            overflow: hidden;
+            height: 14px;
+            margin-top: 0.7rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 83.3%;
+            background: linear-gradient(to right, #74ebd5, #4facfe);
+            transition: width 0.3s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #e9f2fb;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        th {
+            background-color: #f0f8ff;
+            color: #333;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f9fbff;
+        }
+
+        .paid {
+            color: #27ae60;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        .unpaid {
+            color: #c0392b;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 3rem;
+            user-select: none;
+            transition: color 0.3s ease;
+        }
+
+        /* Dark mode styles */
+        body.dark {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        body.dark header {
+            background: linear-gradient(to right, var(--highlight-dark), var(--accent-dark));
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark .card {
+            background: var(--card-bg-dark);
+            box-shadow: 0 8px 20px rgba(75, 115, 165, 0.6);
+            border-top-color: var(--highlight-dark);
+            color: var(--text-dark);
+        }
+
+        body.dark .card-icon {
+            color: var(--highlight-dark);
+        }
+
+        body.dark table {
+            background: #23304a;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.8);
+        }
+
+        body.dark th,
+        body.dark td {
+            color: var(--text-dark);
+            border-color: #37528d;
+        }
+
+        body.dark th {
+            background-color: #2c3a60;
+        }
+
+        body.dark tr:hover {
+            background-color: #345182;
+        }
+
+        body.dark .footer {
+            color: #bbb;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: absolute;
+            top: 18px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            z-index: 1100;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .slider {
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 34px;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 2px;
+            bottom: 2px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        input:checked+.slider {
+            background: var(--highlight-light);
+        }
+
+        input:checked+.slider::before {
+            transform: translateX(26px);
+        }
+
+        .toggle-label {
+            margin-left: 10px;
+            font-weight: 500;
+            color: white;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+            user-select: none;
+            font-size: 0.9rem;
+        }
+
+        /* Management Panel Button */
+        #openMgmtBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--highlight-light);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(72, 156, 255, 0.65);
+            user-select: none;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        #openMgmtBtn:hover {
+            background: var(--accent-light);
+        }
+
+        body.dark #openMgmtBtn {
+            background: var(--highlight-dark);
+            box-shadow: 0 5px 15px rgba(112, 180, 255, 0.8);
+        }
+
+        body.dark #openMgmtBtn:hover {
+            background: var(--accent-dark);
+        }
+
+        /* Floating Management Panel */
+        #managementPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: var(--card-bg-light);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            width: 350px;
+            max-width: 90vw;
+            z-index: 2000;
+            transition: transform 0.3s ease;
+            user-select: none;
+            color: #333;
+        }
+
+        body.dark #managementPanel {
+            background: var(--card-bg-dark);
+            color: var(--text-dark);
+        }
+
+        #managementPanel.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #managementPanel h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-light);
+            user-select: none;
+        }
+
+        #managementPanel form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        #managementPanel label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        body.dark #managementPanel label {
+            color: #aaa;
+        }
+
+        #managementPanel input[type='text'],
+        #managementPanel input[type='number'] {
+            padding: 0.6rem 1rem;
+            border: 1.8px solid var(--card-border-light);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        #managementPanel input[type='text']:focus,
+        #managementPanel input[type='number']:focus {
+            border-color: var(--highlight-light);
+            outline: none;
+        }
+
+        body.dark #managementPanel input[type='text'],
+        body.dark #managementPanel input[type='number'] {
+            background: #2a3a5c;
+            border-color: var(--card-border-dark);
+            color: var(--text-dark);
+        }
+
+        body.dark #managementPanel input[type='text']:focus,
+        body.dark #managementPanel input[type='number']:focus {
+            border-color: var(--highlight-dark);
+        }
+
+        #managementPanel .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #managementPanel button {
+            background: var(--highlight-light);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(72, 156, 255, 0.65);
+            transition: background 0.3s ease;
+            user-select: none;
+        }
+
+        #managementPanel button:hover {
+            background: var(--accent-light);
+        }
+
+        body.dark #managementPanel button {
+            background: var(--highlight-dark);
+            box-shadow: 0 4px 14px rgba(112, 180, 255, 0.8);
+        }
+
+        body.dark #managementPanel button:hover {
+            background: var(--accent-dark);
+        }
+
+        #managementPanel .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .confirm-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .confirm-panel.show {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: var(--card-bg-light);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            color: var(--text-light);
+        }
+
+        body.dark .confirm-content {
+            background: var(--card-bg-dark);
+            color: var(--text-dark);
+        }
+
+        .confirm-content input[type="password"] {
+            width: 100%;
+            padding: 0.6rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border: 1.5px solid #ccc;
+        }
+
+        body.dark .confirm-content input[type="password"] {
+            background: #2a3a5c;
+            color: white;
+            border-color: #444;
+        }
+
+        .manageBtn {
+            /* position: fixed; */
+            bottom: 20px;
+            right: 20px;
+            background: var(--highlight-light);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(72, 156, 255, 0.65);
+            user-select: none;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        .deleteBtn {
+            /* position: fixed; */
+            bottom: 20px;
+            right: 20px;
+            background: var(--highlight-light);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(72, 156, 255, 0.65);
+            user-select: none;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 100px) {
+            .dashboard {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        ✨ ระบบเก็บเงินสาขา cpe
+
+        <label class="toggle-switch" title="สลับโหมดกลางวัน/กลางคืน">
+            <input type="checkbox" id="darkModeToggle" />
+            <span class="slider"></span>
+            <span class="toggle-label">โหมดมืด</span>
+        </label>
+    </header>
+
+    <div class="container">
+        <section class="dashboard" aria-label="ข้อมูลสรุป">
+            <div class="card" id="cardTotal" tabindex="0">
+                <div class="card-icon">💰</div>
+                <div class="card-title">ยอดรวม</div>
+                <div class="card-value" id="totalAmount">0 บาท</div>
+            </div>
+            <div class="card" id="cardPaid" tabindex="0">
+                <div class="card-icon">✅</div>
+                <div class="card-title">จ่ายแล้ว</div>
+                <div class="card-value" id="paidCount">0 คน</div>
+            </div>
+            <div class="card" id="cardUnpaid" tabindex="0">
+                <div class="card-icon">❌</div>
+                <div class="card-title">ยังไม่จ่าย</div>
+                <div class="card-value" id="unpaidCount">0 คน</div>
+            </div>
+            <div class="card" id="cardRate" tabindex="0">
+                <div class="card-icon">📈</div>
+                <div class="card-title">อัตราการชำระ</div>
+                <div class="card-value" id="paymentRate">0%</div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </section>
+
+        <h2 style="margin-bottom: 1rem; color: var(--accent-light);">📋 รายชื่อนักเรียน</h2>
+        <table id="studentTable" aria-label="รายชื่อนักเรียน">
+            <thead>
+                <tr>
+                    <th>ลำดับ</th>
+                    <th>รหัสนักเรียน</th>
+                    <th>ชื่อ</th>
+                    <th>สถานะ</th>
+                    <th>ยอดค้างชำระ</th>
+                    <th>จำนวนที่จ่ายทั้งหมด</th>
+                    <th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- รายชื่อจะถูกเพิ่มด้วย JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ปุ่มเปิด management panel -->
+    <button id="openMgmtBtn" aria-label="เพิ่มนักเรียน">➕ จัดการรายชื่อนักเรียน</button>
+
+    <!-- แผงจัดการแบบลอย -->
+    <section id="managementPanel" aria-modal="true" role="dialog" aria-labelledby="mgmtTitle" tabindex="-1">
+        <h3 id="mgmtTitle">📝 จัดการข้อมูลนักเรียน</h3>
+        <form id="managementForm">
+            <label for="mgmtStudentId">รหัสนักเรียน</label>
+            <input type="text" id="mgmtStudentId" required />
+
+            <label for="mgmtStudentName">ชื่อ-นามสกุล</label>
+            <input type="text" id="mgmtStudentName" required />
+
+            <label for="mgmtStudentAmount">ยอดค้างชำระ (บาท)</label>
+            <input type="number" id="mgmtStudentAmount" min="0" required />
+
+            <label for="mgmtStudentPaidAmount">จำนวนที่จ่ายทั้งหมด (บาท)</label>
+            <input type="number" id="mgmtStudentPaidAmount" min="0" required />
+
+            <div class="btn-group">
+                <button type="submit">💾 บันทึก</button>
+                <button type="button" id="closeMgmtBtn">❌ ปิด</button>
+            </div>
+        </form>
+    </section>
+
+    <div id="deleteConfirmPanel" class="confirm-panel">
+        <form class="confirm-content" onsubmit="return false;">
+            <h3>⚠️ ยืนยันการลบ</h3>
+            <p>กรุณาพิมพ์รหัสผ่านเพื่อลบนักเรียนคนนี้</p>
+            <input type="password" id="confirmPasswordInput" placeholder="ใส่รหัสผ่าน" required />
+            <div class="btn-group">
+                <button id="confirmDeleteBtn">✅ ลบ</button>
+                <button type="button" id="cancelDeleteBtn">❌ ยกเลิก</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="footer">
+        © 2025 ห้องเรียน ม.6/3 | สร้างด้วยความใส่ใจ 💙
+    </div>
+
+    <script>
+        // ข้อมูลนักเรียน
+        let students = [
+            { id: '12345', name: 'ปรีชา ศรีไทย', paidAmount: 100, amountDue: 0 },
+            { id: '12346', name: 'กิตติพงศ์ แสงทอง', paidAmount: 5, amountDue: 50 },
+            { id: '12347', name: 'มาลี บุญช่วย', paidAmount: 0, amountDue: 100 },
+        ];
+
+        const totalDebt = students.reduce((sum, student) => sum + student.amountDue, 0);
+
+        console.log('ยอดค้างชำระรวมทั้งหมด: ' + totalDebt.toLocaleString('th-TH') + ' บาท');
+
+        const studentTableBody = document.querySelector('#studentTable tbody');
+        const totalAmountEl = document.getElementById('totalAmount');
+        const paidCountEl = document.getElementById('paidCount');
+        const unpaidCountEl = document.getElementById('unpaidCount');
+        const paymentRateEl = document.getElementById('paymentRate');
+        const progressFillEl = document.getElementById('progressFill');
+
+        const openMgmtBtn = document.getElementById('openMgmtBtn');
+        const managementPanel = document.getElementById('managementPanel');
+        const closeMgmtBtn = document.getElementById('closeMgmtBtn');
+        const managementForm = document.getElementById('managementForm');
+
+        // ฟิลด์ในแผงจัดการ
+        const mgmtStudentId = document.getElementById('mgmtStudentId');
+        const mgmtStudentName = document.getElementById('mgmtStudentName');
+        const mgmtStudentAmount = document.getElementById('mgmtStudentAmount');
+        const mgmtStudentPaidAmount = document.getElementById('mgmtStudentPaidAmount');
+
+        let editingIndex = null; // ตัวแปรเก็บ index นักเรียนที่แก้ไข
+
+        // แสดงตารางข้อมูล
+        function renderTable() {
+            studentTableBody.innerHTML = '';
+
+            students.forEach((stu, idx) => {
+                const paid = stu.amountDue === 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                <td>${idx + 1}</td>
+                <td>${stu.id}</td>
+                <td>${stu.name}</td>
+                <td class="${paid ? 'paid' : 'unpaid'}">${paid ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'}</td>
+                <td>${stu.amountDue.toLocaleString('th-TH')} บาท</td>
+                <td>${stu.paidAmount.toLocaleString('th-TH')} บาท</td>
+                <td>
+                    <button class="manageBtn" data-index="${idx}">EDIT</button>
+                    <button class="deleteBtn" data-index="${idx}">DELT</button>
+                </td>
+                `;
+                studentTableBody.appendChild(tr);
+            });
+
+            updateSummary();
+            addManageBtnListeners();
+            addDeleteBtnListeners();
+        }
+
+        // อัพเดตสรุปข้อมูล
+        function updateSummary() {
+            const totalPaid = students.reduce((sum, s) => sum + s.paidAmount, 0);
+            const paidCount = students.filter(s => s.amountDue === 0).length;
+            const unpaidCount = students.length - paidCount;
+            const paymentRate = students.length === 0 ? 0 : (paidCount / students.length) * 100;
+
+            totalAmountEl.textContent = totalPaid.toLocaleString('th-TH') + ' บาท'; // รวม "ที่จ่ายแล้ว"
+            paidCountEl.textContent = paidCount + ' คน';
+            unpaidCountEl.textContent = unpaidCount + ' คน';
+            paymentRateEl.textContent = paymentRate.toFixed(1) + '%';
+            progressFillEl.style.width = paymentRate + '%';
+        }
+
+        // เพิ่ม event listener ให้ปุ่มจัดการแต่ละแถว
+        function addManageBtnListeners() {
+            document.querySelectorAll('.manageBtn').forEach(btn => {
+                btn.onclick = e => {
+                    const idx = +btn.dataset.index;
+                    openManagementPanel(idx);
+                };
+            });
+        }
+
+        // เปิดแผงจัดการ พร้อมโหลดข้อมูลนักเรียนที่เลือก
+        function openManagementPanel(idx) {
+            editingIndex = idx;
+            const stu = students[idx];
+            mgmtStudentId.value = stu.id;
+            mgmtStudentName.value = stu.name;
+            mgmtStudentAmount.value = stu.amountDue;
+            mgmtStudentPaidAmount.value = stu.paidAmount;
+
+            managementPanel.classList.add('show');
+            managementPanel.focus();
+        }
+
+        // ปิดแผงจัดการ
+        function closeManagementPanel() {
+            managementPanel.classList.remove('show');
+            editingIndex = null;
+            managementForm.reset();
+        }
+
+        // บันทึกข้อมูลจากแผงจัดการ
+        managementForm.addEventListener('submit', e => {
+            e.preventDefault();
+
+            const id = mgmtStudentId.value.trim();
+            const name = mgmtStudentName.value.trim();
+            const amount = +mgmtStudentAmount.value;
+            const amountDue = +mgmtStudentAmount.value;
+            const paidAmount = +mgmtStudentPaidAmount.value;
+
+            if (!id || !name || isNaN(amount) || amount < 0) {
+                alert('กรุณากรอกข้อมูลให้ถูกต้อง');
+                return;
+            }
+
+            // เช็คซ้ำรหัส
+            if (students.some((s, i) => s.id === id && i !== editingIndex)) {
+                alert('มีรหัสนักเรียนนี้ในระบบแล้ว');
+                return;
+            }
+
+            if (editingIndex !== null) {
+                students[editingIndex] = { id, name, amountDue, paidAmount };
+            } else {
+                students.push({ id, name, amountDue, paidAmount });
+            }
+
+            closeManagementPanel();
+            renderTable();
+        });
+
+        // ปุ่มปิดแผงจัดการ
+        closeMgmtBtn.addEventListener('click', () => {
+            closeManagementPanel();
+        });
+
+        // ปุ่มเปิดแผงจัดการสำหรับเพิ่มนักเรียนใหม่
+        openMgmtBtn.addEventListener('click', () => {
+            editingIndex = null;
+            managementForm.reset();
+            managementPanel.classList.add('show');
+            mgmtStudentId.focus();
+        });
+
+        // ปิดแผงจัดการถ้ากดนอกแผง (คลิกที่ overlay)
+        window.addEventListener('click', e => {
+            if (e.target === managementPanel) {
+                closeManagementPanel();
+            }
+        });
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        function loadDarkModeSetting() {
+            const saved = localStorage.getItem('darkModeEnabled');
+            if (saved === 'true') {
+                document.body.classList.add('dark');
+                darkModeToggle.checked = true;
+            }
+        }
+        function saveDarkModeSetting(enabled) {
+            localStorage.setItem('darkModeEnabled', enabled);
+        }
+
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                document.body.classList.add('dark');
+                saveDarkModeSetting(true);
+            } else {
+                document.body.classList.remove('dark');
+                saveDarkModeSetting(false);
+            }
+        });
+
+        const deletePanel = document.getElementById('deleteConfirmPanel');
+        const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        let deleteIndex = null;
+        const ADMIN_PASSWORD = "12345";
+
+        function showDeletePanel(index) {
+            deleteIndex = index;
+            confirmPasswordInput.value = '';
+            deletePanel.classList.add('show');
+            confirmPasswordInput.focus();
+        }
+
+        function hideDeletePanel() {
+            deletePanel.classList.remove('show');
+            deleteIndex = null;
+        }
+
+        confirmDeleteBtn.onclick = () => {
+            if (confirmPasswordInput.value === ADMIN_PASSWORD) {
+                students.splice(deleteIndex, 1);
+                renderTable();
+                hideDeletePanel();
+            } else {
+                alert("❌ รหัสผ่านไม่ถูกต้อง");
+            }
+        };
+
+        cancelDeleteBtn.onclick = hideDeletePanel;
+
+        function addDeleteBtnListeners() {
+            document.querySelectorAll('.deleteBtn').forEach(btn => {
+                btn.onclick = () => {
+                    const idx = +btn.dataset.index;
+                    showDeletePanel(idx);
+                };
+            });
+        }
+
+        // โหลดค่าตอนเริ่มต้น
+        loadDarkModeSetting();
+        renderTable();
+    </script>
+</body>
+
+</html>
