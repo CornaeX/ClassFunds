@@ -2,7 +2,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = 3000;
+const port = 8278;
 
 // Set public folder as static directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -19,6 +19,9 @@ app.get('/tkpb', (req, res) => {
 });
 app.get('/tbf', (req, res) => {
     res.redirect('/testbillform.html');
+});
+app.get('/bill', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'bill.html'));
 });
 
 // Start server

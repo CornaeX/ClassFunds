@@ -459,18 +459,41 @@
             display: flex;
         }
 
-        #billPanel .bill-item {
-            background: var(--card-bg-light);
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            border-left: 5px solid #4facfe;
+        #billPanel {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(0);
+          background: var(--card-bg-light);
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          padding: 2rem;
+          width: 500px;
+          max-width: 90vw;
+          max-height: 80vh; /* 🔥 ADD THIS */
+          overflow-y: auto;  /* 🔥 MAKE IT SCROLLABLE */
+          z-index: 2000;
+          transition: transform 0.3s ease;
+          user-select: none;
+          color: #333;
+        }
+        body.dark #billPanel {
+          background: var(--card-bg-dark);
+          color: var(--text-dark);
+        }
+        
+        #billPanel.show {
+          transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .bill-item {
+          padding: 1rem;
+          border-bottom: 1px solid #ccc;
+        }
+        body.dark .bill-item {
+          border-color: #444;
         }
 
-        body.dark #billPanel .bill-item {
-            background: var(--card-bg-dark);
-            border-color: var(--highlight-dark);
-        }
 
         .confirm-content {
             background: var(--card-bg-light);
@@ -532,6 +555,26 @@
             z-index: 1000;
             transition: background 0.3s ease;
         }
+        
+        .filter-bar {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+          flex-wrap: wrap;
+        }
+        .filter-bar input,
+        .filter-bar select {
+          padding: 0.6rem 1rem;
+          border-radius: 10px;
+          border: 1.5px solid #ccc;
+          font-size: 1rem;
+        }
+        body.dark .filter-bar input,
+        body.dark .filter-bar select {
+          background: #2a3a5c;
+          color: white;
+          border-color: #555;
+        }
 
         /* Responsive */
         @media (max-width: 100px) {
@@ -579,6 +622,15 @@
                 </div>
             </div>
         </section>
+        
+        <div class="filter-bar">
+          <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อหรือละหัสนักเรียน..." />
+          <select id="statusFilter">
+            <option value="">📋 สถานะทั้งหมด</option>
+            <option value="paid">✅ จ่ายแล้ว</option>
+            <option value="unpaid">❌ ยังไม่จ่าย</option>
+          </select>
+        </div>
 
         <h2 style="margin-bottom: 1rem; color: var(--accent-light);">📋 รายชื่อนักเรียน</h2>
         <table id="studentTable" aria-label="รายชื่อนักเรียน">
@@ -637,15 +689,15 @@
         </form>
     </div>
 
-    <div id="billPanel" class="confirm-panel">
-        <div class="confirm-content" style="max-width: 600px; width: 90%;">
-            <h3>📑 รายละเอียดบิล</h3>
-            <div id="billListContent"></div>
-            <div class="btn-group" style="margin-top: 1.5rem;">
-                <button onclick="hideBillPanel()">❌ ปิด</button>
-            </div>
-        </div>
-    </div>
+    <section id="billPanel" role="dialog" aria-modal="true">
+      <h3 style="margin-bottom: 1rem;">🧾 รายการบิลของนักเรียน</h3>
+      <div id="billListContent"></div>
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <button onclick="hideBillPanel()" style="padding: 0.5rem 1.5rem; border-radius: 12px; font-weight: bold; background: var(--highlight-light); color: white; border: none; cursor: pointer;">
+          ❌ ปิดหน้าต่าง
+        </button>
+      </div>
+    </section>
 
     <div class="footer">
         © 2025 ห้องเรียน ม.6/3 | สร้างด้วยความใส่ใจ 💙
@@ -686,6 +738,50 @@
                 "createdAt": "2025-07-11T08:00:00Z",
                 "paidAt": null,
                 "addedBy": "admin001"
+            },
+            "bill004": {
+                "studentId": "6600123456",
+                "name": "Nipitpon Boonyathorn",
+                "note": "Lab equipment fee",
+                "amount": 150,
+                "dueDate": "2025-08-15",
+                "status": "unpaid",
+                "createdAt": "2025-07-13T10:00:00Z",
+                "paidAt": null,
+                "addedBy": "admin001"
+            },
+            "bill005": {
+                "studentId": "6600123456",
+                "name": "Nipitpon Boonyathorn",
+                "note": "Graduation ceremony",
+                "amount": 500,
+                "dueDate": "2025-09-01",
+                "status": "paid",
+                "createdAt": "2025-07-10T14:30:00Z",
+                "paidAt": "2025-07-12T09:15:00Z",
+                "addedBy": "admin002"
+            },
+            "bill006": {
+                "studentId": "6600123456",
+                "name": "Nipitpon Boonyathorn",
+                "note": "Lab equipment fee",
+                "amount": 150,
+                "dueDate": "2025-08-15",
+                "status": "unpaid",
+                "createdAt": "2025-07-13T10:00:00Z",
+                "paidAt": null,
+                "addedBy": "admin001"
+            },
+            "bill007": {
+                "studentId": "6600123456",
+                "name": "Nipitpon Boonyathorn",
+                "note": "Graduation ceremony",
+                "amount": 500,
+                "dueDate": "2025-09-01",
+                "status": "paid",
+                "createdAt": "2025-07-10T14:30:00Z",
+                "paidAt": "2025-07-12T09:15:00Z",
+                "addedBy": "admin002"
             }
         };
 
@@ -737,21 +833,26 @@
 
         const billPanel = document.getElementById("billPanel");
         const billListContent = document.getElementById("billListContent");
+        
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+
 
         let editingIndex = null; // ตัวแปรเก็บ index นักเรียนที่แก้ไข
+        let students = [];
 
         function showBillPanel(studentId) {
             const studentBills = Object.values(bills).filter(b => b.studentId === studentId);
             billListContent.innerHTML = studentBills.map(bill => `
-    <div class="bill-item">
-      <div><strong>📝 หมายเหตุ:</strong> ${bill.note}</div>
-      <div><strong>💵 จำนวนเงิน:</strong> ${bill.amount.toLocaleString('th-TH')} บาท</div>
-      <div><strong>📅 กำหนดชำระ:</strong> ${bill.dueDate}</div>
-      <div><strong>📌 สถานะ:</strong> <span class="${bill.status === 'paid' ? 'paid' : 'unpaid'}">${bill.status === 'paid' ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'}</span></div>
-      <div><strong>🕓 วันที่เพิ่ม:</strong> ${new Date(bill.createdAt).toLocaleString('th-TH')}</div>
-      ${bill.paidAt ? `<div><strong>✅ วันที่จ่าย:</strong> ${new Date(bill.paidAt).toLocaleString('th-TH')}</div>` : ''}
-    </div>
-  `).join("");
+              <div class="bill-item">
+                <div><strong>📝 หมายเหตุ:</strong> ${bill.note}</div>
+                <div><strong>💵 จำนวนเงิน:</strong> ${bill.amount.toLocaleString('th-TH')} บาท</div>
+                <div><strong>📅 กำหนดชำระ:</strong> ${bill.dueDate}</div>
+                <div><strong>📌 สถานะ:</strong> <span class="${bill.status === 'paid' ? 'paid' : 'unpaid'}">${bill.status === 'paid' ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'}</span></div>
+                <div><strong>🕓 วันที่เพิ่ม:</strong> ${new Date(bill.createdAt).toLocaleString('th-TH')}</div>
+                ${bill.paidAt ? `<div><strong>✅ วันที่จ่าย:</strong> ${new Date(bill.paidAt).toLocaleString('th-TH')}</div>` : ''}
+              </div>
+            `).join("");
 
             billPanel.classList.add("show");
         }
@@ -762,27 +863,56 @@
 
         // แสดงตารางข้อมูล
         function renderTable() {
-            const students = groupByStudent();
-            studentTableBody.innerHTML = '';
-
-            students.forEach((stu, idx) => {
-                const paid = stu.amountDue === 0;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${idx + 1}</td>
-                    <td>${stu.studentId}</td>
-                    <td>${stu.name}</td>
-                    <td class="${paid ? 'paid' : 'unpaid'}">${paid ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'}</td>
-                    <td>${stu.amountDue.toLocaleString('th-TH')} บาท</td>
-                    <td>${stu.paidAmount.toLocaleString('th-TH')} บาท</td>
-                    <td><button class="manageBtn" data-student="${stu.studentId}">ดูบิล</button></td>
-                    `;
-                tr.onclick = () => showBillPanel(stu.studentId);
-                studentTableBody.appendChild(tr);
-            });
-
-            updateSummary(students);
-        }
+          let filtered = groupByStudent();
+      
+          // 🔍 Apply search filter
+          const keyword = searchInput.value.trim().toLowerCase();
+          if (keyword) {
+              filtered = filtered.filter(s =>
+                  s.name.toLowerCase().includes(keyword) ||
+                  s.studentId.includes(keyword)
+              );
+          }
+      
+          // ✅ Filter by status
+          const status = statusFilter.value;
+          if (status) {
+              filtered = filtered.filter(s =>
+                  status === 'paid' ? s.amountDue === 0 : s.amountDue > 0
+              );
+          }
+      
+          students = filtered;
+          studentTableBody.innerHTML = '';
+      
+          students.forEach((stu, idx) => {
+              const paid = stu.amountDue === 0;
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                  <td>${idx + 1}</td>
+                  <td>${stu.studentId}</td>
+                  <td>${stu.name}</td>
+                  <td class="${paid ? 'paid' : 'unpaid'}">${paid ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'}</td>
+                  <td>${stu.amountDue.toLocaleString('th-TH')} บาท</td>
+                  <td>${stu.paidAmount.toLocaleString('th-TH')} บาท</td>
+                  <td>
+                      <button class="manageBtn" data-index="${idx}">⚙️</button>
+                      <button class="deleteBtn" data-index="${idx}">🗑️</button>
+                  </td>
+              `;
+              tr.addEventListener('click', (e) => {
+                  const isButton = e.target.closest('button');
+                  if (!isButton) {
+                      showBillPanel(stu.studentId);
+                  }
+              });
+              studentTableBody.appendChild(tr);
+          });
+      
+          updateSummary(students);
+          addManageBtnListeners();
+          addDeleteBtnListeners();
+      }
 
         // อัพเดตสรุปข้อมูล
         function updateSummary(students) {
@@ -810,9 +940,9 @@
 
         // เปิดแผงจัดการ พร้อมโหลดข้อมูลนักเรียนที่เลือก
         function openManagementPanel(idx) {
-            editingIndex = idx;
+            editingIndex = idx;confirm
             const stu = students[idx];
-            mgmtStudentId.value = stu.id;
+            mgmtStudentId.value = stu.studentId;
             mgmtStudentName.value = stu.name;
             mgmtStudentAmount.value = stu.amountDue;
             mgmtStudentPaidAmount.value = stu.paidAmount;
@@ -916,14 +1046,23 @@
         }
 
         confirmDeleteBtn.onclick = () => {
-            if (confirmPasswordInput.value === ADMIN_PASSWORD) {
-                students.splice(deleteIndex, 1);
-                renderTable();
-                hideDeletePanel();
-            } else {
-                alert("❌ รหัสผ่านไม่ถูกต้อง");
-            }
-        };
+          if (confirmPasswordInput.value === ADMIN_PASSWORD) {
+              const studentIdToDelete = students[deleteIndex].studentId;
+      
+              // 🔥 Delete all bills of this student from the real data source
+              for (const billId in bills) {
+                  if (bills[billId].studentId === studentIdToDelete) {
+                      delete bills[billId];
+                  }
+              }
+      
+              renderTable();     // Refresh table
+              hideDeletePanel(); // Hide popup
+          } else {
+              alert("❌ รหัสผ่านไม่ถูกต้อง");
+          }
+      };
+
 
         cancelDeleteBtn.onclick = hideDeletePanel;
 
@@ -935,6 +1074,10 @@
                 };
             });
         }
+
+        searchInput.addEventListener('input', renderTable);
+        statusFilter.addEventListener('change', renderTable);
+
 
         // โหลดค่าตอนเริ่มต้น
         loadDarkModeSetting();
