@@ -459,6 +459,19 @@
             display: flex;
         }
 
+        #billPanel .bill-item {
+            background: var(--card-bg-light);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 5px solid #4facfe;
+        }
+
+        body.dark #billPanel .bill-item {
+            background: var(--card-bg-dark);
+            border-color: var(--highlight-dark);
+        }
+
         .confirm-content {
             background: var(--card-bg-light);
             padding: 2rem;
@@ -576,7 +589,7 @@
                     <th>ชื่อ</th>
                     <th>สถานะ</th>
                     <th>ยอดค้างชำระ</th>
-                    <th>จำนวนที่จ่ายทั้งหมด</th>
+                    <th>ยอดเงินทั้งหมด</th>
                     <th>จัดการ</th>
                 </tr>
             </thead>
@@ -602,7 +615,7 @@
             <label for="mgmtStudentAmount">ยอดค้างชำระ (บาท)</label>
             <input type="number" id="mgmtStudentAmount" min="0" required />
 
-            <label for="mgmtStudentPaidAmount">จำนวนที่จ่ายทั้งหมด (บาท)</label>
+            <label for="mgmtStudentPaidAmount">ยอดเงินทั้งหมด (บาท)</label>
             <input type="number" id="mgmtStudentPaidAmount" min="0" required />
 
             <div class="btn-group">
@@ -624,21 +637,85 @@
         </form>
     </div>
 
+    <div id="billPanel" class="confirm-panel">
+        <div class="confirm-content" style="max-width: 600px; width: 90%;">
+            <h3>📑 รายละเอียดบิล</h3>
+            <div id="billListContent"></div>
+            <div class="btn-group" style="margin-top: 1.5rem;">
+                <button onclick="hideBillPanel()">❌ ปิด</button>
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
         © 2025 ห้องเรียน ม.6/3 | สร้างด้วยความใส่ใจ 💙
     </div>
 
     <script>
         // ข้อมูลนักเรียน
-        let students = [
-            { id: '12345', name: 'ปรีชา ศรีไทย', paidAmount: 100, amountDue: 0 },
-            { id: '12346', name: 'กิตติพงศ์ แสงทอง', paidAmount: 5, amountDue: 50 },
-            { id: '12347', name: 'มาลี บุญช่วย', paidAmount: 0, amountDue: 100 },
-        ];
+        const bills = {
+            "bill001": {
+                "studentId": "6600123456",
+                "name": "Nipitpon Boonyathorn",
+                "note": "Lab equipment fee",
+                "amount": 150,
+                "dueDate": "2025-08-15",
+                "status": "unpaid",
+                "createdAt": "2025-07-13T10:00:00Z",
+                "paidAt": null,
+                "addedBy": "admin001"
+            },
+            "bill002": {
+                "studentId": "6600123456",
+                "name": "Nipitpon Boonyathorn",
+                "note": "Graduation ceremony",
+                "amount": 500,
+                "dueDate": "2025-09-01",
+                "status": "paid",
+                "createdAt": "2025-07-10T14:30:00Z",
+                "paidAt": "2025-07-12T09:15:00Z",
+                "addedBy": "admin002"
+            },
+            "bill003": {
+                "studentId": "6600789012",
+                "name": "Chaiyaphon S.",
+                "note": "Activity participation",
+                "amount": 100,
+                "dueDate": "2025-08-20",
+                "status": "unpaid",
+                "createdAt": "2025-07-11T08:00:00Z",
+                "paidAt": null,
+                "addedBy": "admin001"
+            }
+        };
 
-        const totalDebt = students.reduce((sum, student) => sum + student.amountDue, 0);
+        function groupByStudent() {
+            const map = {};
+            for (const billId in bills) {
+                const bill = bills[billId];
+                const sid = bill.studentId;
+                if (!map[sid]) {
+                    map[sid] = {
+                        studentId: sid,
+                        name: bill.name,
+                        amountDue: 0,
+                        paidAmount: 0,
+                        bills: []
+                    };
+                }
+                map[sid].bills.push(bill);
+                if (bill.status === 'paid') {
+                    map[sid].paidAmount += bill.amount;
+                } else {
+                    map[sid].amountDue += bill.amount;
+                }
+            }
+            return Object.values(map);
+        }
 
-        console.log('ยอดค้างชำระรวมทั้งหมด: ' + totalDebt.toLocaleString('th-TH') + ' บาท');
+        // const totalDebt = students.reduce((sum, student) => sum + student.amountDue, 0);
+
+        // console.log('ยอดค้างชำระรวมทั้งหมด: ' + totalDebt.toLocaleString('th-TH') + ' บาท');
 
         const studentTableBody = document.querySelector('#studentTable tbody');
         const totalAmountEl = document.getElementById('totalAmount');
@@ -658,43 +735,63 @@
         const mgmtStudentAmount = document.getElementById('mgmtStudentAmount');
         const mgmtStudentPaidAmount = document.getElementById('mgmtStudentPaidAmount');
 
+        const billPanel = document.getElementById("billPanel");
+        const billListContent = document.getElementById("billListContent");
+
         let editingIndex = null; // ตัวแปรเก็บ index นักเรียนที่แก้ไข
+
+        function showBillPanel(studentId) {
+            const studentBills = Object.values(bills).filter(b => b.studentId === studentId);
+            billListContent.innerHTML = studentBills.map(bill => `
+    <div class="bill-item">
+      <div><strong>📝 หมายเหตุ:</strong> ${bill.note}</div>
+      <div><strong>💵 จำนวนเงิน:</strong> ${bill.amount.toLocaleString('th-TH')} บาท</div>
+      <div><strong>📅 กำหนดชำระ:</strong> ${bill.dueDate}</div>
+      <div><strong>📌 สถานะ:</strong> <span class="${bill.status === 'paid' ? 'paid' : 'unpaid'}">${bill.status === 'paid' ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'}</span></div>
+      <div><strong>🕓 วันที่เพิ่ม:</strong> ${new Date(bill.createdAt).toLocaleString('th-TH')}</div>
+      ${bill.paidAt ? `<div><strong>✅ วันที่จ่าย:</strong> ${new Date(bill.paidAt).toLocaleString('th-TH')}</div>` : ''}
+    </div>
+  `).join("");
+
+            billPanel.classList.add("show");
+        }
+
+        function hideBillPanel() {
+            billPanel.classList.remove("show");
+        }
 
         // แสดงตารางข้อมูล
         function renderTable() {
+            const students = groupByStudent();
             studentTableBody.innerHTML = '';
 
             students.forEach((stu, idx) => {
                 const paid = stu.amountDue === 0;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                <td>${idx + 1}</td>
-                <td>${stu.id}</td>
-                <td>${stu.name}</td>
-                <td class="${paid ? 'paid' : 'unpaid'}">${paid ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'}</td>
-                <td>${stu.amountDue.toLocaleString('th-TH')} บาท</td>
-                <td>${stu.paidAmount.toLocaleString('th-TH')} บาท</td>
-                <td>
-                    <button class="manageBtn" data-index="${idx}">EDIT</button>
-                    <button class="deleteBtn" data-index="${idx}">DELT</button>
-                </td>
-                `;
+                    <td>${idx + 1}</td>
+                    <td>${stu.studentId}</td>
+                    <td>${stu.name}</td>
+                    <td class="${paid ? 'paid' : 'unpaid'}">${paid ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'}</td>
+                    <td>${stu.amountDue.toLocaleString('th-TH')} บาท</td>
+                    <td>${stu.paidAmount.toLocaleString('th-TH')} บาท</td>
+                    <td><button class="manageBtn" data-student="${stu.studentId}">ดูบิล</button></td>
+                    `;
+                tr.onclick = () => showBillPanel(stu.studentId);
                 studentTableBody.appendChild(tr);
             });
 
-            updateSummary();
-            addManageBtnListeners();
-            addDeleteBtnListeners();
+            updateSummary(students);
         }
 
         // อัพเดตสรุปข้อมูล
-        function updateSummary() {
+        function updateSummary(students) {
             const totalPaid = students.reduce((sum, s) => sum + s.paidAmount, 0);
             const paidCount = students.filter(s => s.amountDue === 0).length;
             const unpaidCount = students.length - paidCount;
             const paymentRate = students.length === 0 ? 0 : (paidCount / students.length) * 100;
 
-            totalAmountEl.textContent = totalPaid.toLocaleString('th-TH') + ' บาท'; // รวม "ที่จ่ายแล้ว"
+            totalAmountEl.textContent = totalPaid.toLocaleString('th-TH') + ' บาท';
             paidCountEl.textContent = paidCount + ' คน';
             unpaidCountEl.textContent = unpaidCount + ' คน';
             paymentRateEl.textContent = paymentRate.toFixed(1) + '%';
@@ -794,15 +891,9 @@
         function saveDarkModeSetting(enabled) {
             localStorage.setItem('darkModeEnabled', enabled);
         }
-
         darkModeToggle.addEventListener('change', () => {
-            if (darkModeToggle.checked) {
-                document.body.classList.add('dark');
-                saveDarkModeSetting(true);
-            } else {
-                document.body.classList.remove('dark');
-                saveDarkModeSetting(false);
-            }
+            document.body.classList.toggle('dark', darkModeToggle.checked);
+            saveDarkModeSetting(darkModeToggle.checked);
         });
 
         const deletePanel = document.getElementById('deleteConfirmPanel');
